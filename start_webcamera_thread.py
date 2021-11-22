@@ -142,13 +142,12 @@ class WebScreen(QMainWindow):
 
         self.ui.pushButton_close.clicked.connect(self.close_window)
         self.ui.pushButton_maxi.clicked.connect(self.min_max_window)
-        self.ui.chk_adjust.stateChanged.connect(self.adjust)  # adjust ratio
 
         self.ui.video.clicked.connect(self.open_video)
         self.ui.picture.clicked.connect(self.capture_picture)
         self.ui.config.clicked.connect(self.show_config)
 
-        self.ui.chk_adjust.toggled.connect(self.adjust)
+        self.ui.chk_adjust.toggled.connect(self.on_adjust)
         self.ui.chk_inverse.toggled.connect(self.flip)
         self.ui.chk_grey.toggled.connect(self.grey)
 
@@ -170,8 +169,7 @@ class WebScreen(QMainWindow):
         self.ui.lbl_screen.setText(self.infos_screen)
         self.timer.stop()
 
-        #time.sleep(1)
-        while self.timer2.elapsed()<1100:
+        while self.timer2.elapsed() < 1100:
             QCoreApplication.processEvents()
 
         self.ui.lbl_screen.setText("")
@@ -285,26 +283,38 @@ class WebScreen(QMainWindow):
         style = style.replace("<value>", str(value)).replace("<name>", name)
         return style
 
-    def adjust(self, state):
+    def on_adjust(self, state):
         if state == QtCore.Qt.Checked:
+            l = self.ui.container.width()
+            h = self.ui.container.height()
+            self.ui.screen.move(5, 5)
+            self.ui.screen.resize(l - 5, h - 5)
             self.ratio = True
+            self.set_infos("Ajusté à l'écran")
         else:
+            l = self.ui.container.width()
+            h = self.ui.container.height()
+            self.center_cam(l, h)
             self.ratio = False
+            self.set_infos("Taille réelle")
 
     def on_contraste(self):
         if self.camera:
             self.camera.set_property(11, float(self.ui.slider_contraste.value()))
             self.ui.lbl_contraste.setText(self.property_changed("Contraste", self.ui.slider_contraste.value()))
+            # self.set_infos("Contraste")
 
     def on_brillance(self):
         if self.camera:
             self.camera.set_property(10, float(self.ui.slider_brillance.value()))
             self.ui.lbl_brillance.setText(self.property_changed("Brillance", self.ui.slider_brillance.value()))
+            # self.set_infos("Brillance")
 
     def on_saturation(self):
         if self.camera:
             self.camera.set_property(12, float(self.ui.slider_saturation.value()))
             self.ui.lbl_saturation.setText(self.property_changed("Saturation", self.ui.slider_saturation.value()))
+            # self.set_infos("Saturation")
 
     def update_position(self):
         self.ui.slider_position.setValue(self.position)
